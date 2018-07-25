@@ -3,9 +3,9 @@
 use yii\db\Migration;
 
 /**
- * Handles the creation of table `file`.
+ * Handles the creation of table `trail`.
  */
-class m180720_174234_file_init extends Migration
+class m180720_000000_trail_init extends Migration
 {
     /**
      * {@inheritdoc}
@@ -20,28 +20,26 @@ class m180720_174234_file_init extends Migration
                 $tableOptions = null;
         }
 
-        $this->createTable(\nadzif\file\model\File::tableName(), [
-            'id'                    => $this->bigPrimaryKey()->unsigned(),
-            'type'                  => $this->string(50),
-            'originalName'          => $this->string()->notNull(),
-            'alias'                 => $this->string()->notNull(),
-            'path'                  => $this->string()->notNull(),
-            'filename'              => $this->string()->notNull(),
-            'size'                  => $this->double()->notNull(),
-            'extension'             => $this->string(15)->notNull(),
-            'mimeType'              => $this->string(100)->notNull(),
-            'thumbnailFilename'     => $this->string(),
-            'thumbnailSize'         => $this->double(),
-            'thumbnailExtension'    => $this->string(15),
-            'thumbnailMimeType'     => $this->string(100),
-            'additionalInformation' => $this->text(),
-            'createdBy'             => $this->bigInteger()->unsigned()->null(),
-            'createdAt'             => $this->dateTime(),
-            'updatedBy'             => $this->bigInteger()->unsigned()->null(),
-            'updatedAt'             => $this->dateTime(),
-            'deletedBy'             => $this->bigInteger()->unsigned()->null(),
-            'deletedAt'             => $this->dateTime(),
-            'flag'                  => $this->integer(),
+        $this->createTable(\nadzif\behaviors\models\Trail::tableName(), [
+            'id'          => $this->bigPrimaryKey()->unsigned(),
+            'userId'      => $this->bigInteger()->unsigned()->null(),
+            'refCode'     => $this->string()->null(),
+            'refId'       => $this->string()->notNull(),
+            'className'   => $this->string()->notNull(),
+            'action'      => $this->string()->comment('insert, update, delete, restore'),
+            'dataUpdated' => $this->boolean(),
+            'dataBefore'  => $this->text(),
+            'dataAfter'   => $this->text(),
+            'hostName'    => $this->string(),
+            'hostInfo'    => $this->string(),
+            'portRequest' => $this->string(),
+            'url'         => $this->string(),
+            'userHost'    => $this->string(),
+            'userIp'      => $this->string(),
+            'clientIp'    => $this->string(),
+            'userAgent'   => $this->string(),
+            'information' => $this->text(),
+            'createdAt'   => $this->dateTime(),
         ], $tableOptions);
     }
 
@@ -50,6 +48,6 @@ class m180720_174234_file_init extends Migration
      */
     public function safeDown()
     {
-        $this->dropTable(\nadzif\file\model\File::tableName());
+        $this->dropTable(\nadzif\behaviors\models\Trail::tableName());
     }
 }
