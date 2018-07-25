@@ -1,15 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Nadzif Glovory
- * Date: 7/25/2018
- * Time: 1:08 PM
- */
 
 namespace nadzif\behaviors;
 
-
-class SoftDeleteBehavior
+/**
+ * Class SoftDeleteBehavior
+ *
+ * @package nadzif\behaviors
+ *
+ * This package is inheritance from yii2tech/ar-softdelete
+ * for more detail see https://github.com/yii2tech/ar-softdelete
+ */
+class SoftDeleteBehavior extends \yii2tech\ar\softdelete\SoftDeleteBehavior
 {
 
 }
