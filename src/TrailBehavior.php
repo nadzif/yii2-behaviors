@@ -16,7 +16,7 @@ use yii\helpers\Json;
  *
  *
  */
-class LogBehavior extends Behavior
+class TrailBehavior extends Behavior
 {
     public  $_information;
     public  $_refCode = null;
