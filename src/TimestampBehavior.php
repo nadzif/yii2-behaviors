@@ -1,15 +1,20 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Nadzif Glovory
- * Date: 7/25/2018
- * Time: 1:15 PM
- */
 
 namespace nadzif\behaviors;
 
-
-class TimestampBehavior
+/**
+ * Class TimestampBehavior
+ *
+ * @package nadzif\behaviors
+ */
+class TimestampBehavior extends \yii\behaviors\TimestampBehavior
 {
+    public $createdAtAttribute = 'createdAt';
+    public $updatedAtAttribute = 'updatedAt';
 
+    public function init()
+    {
+        $this->value = date('Y-m-d H:i:s');
+        parent::init();
+    }
 }
