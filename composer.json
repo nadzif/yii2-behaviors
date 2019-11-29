@@ -12,9 +12,10 @@
   "keywords": [
     "yii2",
     "behavior",
-	"soft delete",
+    "soft delete",
     "owner",
-	"log"
+    "log",
+    "upload"
   ],
   "type": "yii2-extension",
   "minimum-stability": "dev",
@@ -22,7 +23,8 @@
   "require": {
     "php": ">=5.4.0",
     "yiisoft/yii2": ">=2.0",
-    "yii2tech/ar-softdelete": "^1.0"
+    "yii2tech/ar-softdelete": "^1.0",
+    "yiisoft/yii2-imagine": "^2.2"
   },
   "autoload": {
     "psr-4": {
