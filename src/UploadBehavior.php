@@ -26,9 +26,13 @@ class UploadBehavior extends AttributeBehavior
 {
     /** @var ActiveRecord */
     public $targetModel;
+    public $targetAttribute = 'fileId';
+
+    // FORM ATTRIBUTE
     public $fileAttribute;
     public $nameAttribute; //optional
     public $informationAttribute; //optional
+
 
     public $fileClass = File::class;
 
@@ -72,30 +76,30 @@ class UploadBehavior extends AttributeBehavior
         $dirPath        = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $aliasDirectory) . DIRECTORY_SEPARATOR;
         $uploadPath     = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $this->uploadPath) . DIRECTORY_SEPARATOR;
 
-        /** @var File $model */
-        $model = new $this->fileClass;
+        /** @var File $fileModel */
+        $fileModel = new $this->fileClass;
 
         if ($this->thumbnailPrefix) {
-            $model->thumbnailPrefix = $this->thumbnailPrefix;
+            $fileModel->thumbnailPrefix = $this->thumbnailPrefix;
         }
 
         if ($this->thumbnailOptions) {
-            $model->thumbnailOptions = $this->thumbnailOptions;
+            $fileModel->thumbnailOptions = $this->thumbnailOptions;
         }
 
         if ($this->thumbnailExtension) {
-            $model->defaultThumbnailExtension = $this->thumbnailExtension;
+            $fileModel->defaultThumbnailExtension = $this->thumbnailExtension;
         }
 
         if ($this->allowedExtensions) {
-            $model->allowedExtensions = $this->allowedExtensions;
+            $fileModel->allowedExtensions = $this->allowedExtensions;
         }
 
         if (!ArrayHelper::isIn($this->uploadAlias, [File::ALIAS_WEBROOT, File::ALIAS_WEB])) {
             $dirPath           .= 'web' . DIRECTORY_SEPARATOR;
-            $model->requireWeb = true;
+            $fileModel->requireWeb = true;
         } else {
-            $model->requireWeb = false;
+            $fileModel->requireWeb = false;
         }
 
         is_dir($dirPath) ?: mkdir($dirPath, $this->directoryMode, true); // MAKE DIRECTORY IF NOT EXIST
@@ -107,8 +111,8 @@ class UploadBehavior extends AttributeBehavior
         }
 
         $extensionAllowed = false;
-        foreach ($model->allowedExtensions as $type => $extensions) {
-            if (ArrayHelper::isIn($model->extension, $extensions)) {
+        foreach ($fileModel->allowedExtensions as $type => $extensions) {
+            if (ArrayHelper::isIn($fileModel->extension, $extensions)) {
                 $extensionAllowed = true;
                 break;
             }
@@ -118,35 +122,39 @@ class UploadBehavior extends AttributeBehavior
             $formModel->addError($this->fileAttribute, \Yii::t('app', 'Extension not supported.'));
         }
 
-        $model->uploadAlias = $this->uploadAlias;
-        $model->uploadPath  = $uploadPath;
-        $model->baseUrl     = $this->baseUrl ?: \Yii::$app->urlManager->baseUrl;
-        $model->name        = FileHelper::slug($fileInstance->baseName) . '_' . dechex(time());
-        $model->size        = $fileInstance->size;
-        $model->extension   = $fileInstance->extension;
-        $model->type        = $fileInstance->type;
+        $fileModel->uploadAlias = $this->uploadAlias;
+        $fileModel->uploadPath  = $uploadPath;
+        $fileModel->baseUrl     = $this->baseUrl ?: \Yii::$app->urlManager->baseUrl;
+        $fileModel->name        = FileHelper::slug($fileInstance->baseName) . '_' . dechex(time());
+        $fileModel->size        = $fileInstance->size;
+        $fileModel->extension   = $fileInstance->extension;
+        $fileModel->type        = $fileInstance->type;
 
         $nameAttribute        = $this->nameAttribute ?: false;
         $informationAttribute = $this->informationAttribute ?: false;
 
         if ($nameAttribute) {
-            $model->displayName = $formModel->$nameAttribute;
+            $fileModel->displayName = $formModel->$nameAttribute;
         } else {
-            $model->displayName = $fileInstance->name;
+            $fileModel->displayName = $fileInstance->name;
         }
 
         if ($informationAttribute) {
-            $model->additionalInformation = $formModel->$informationAttribute;
+            $fileModel->additionalInformation = $formModel->$informationAttribute;
         }
 
-        $fullPath = $dirPath . $model->name . '.' . $model->extension;
+        $fullPath = $dirPath . $fileModel->name . '.' . $fileModel->extension;
         $fullPath = str_replace('\\', DIRECTORY_SEPARATOR, $fullPath);
 
         if (!$formModel->hasErrors()) {
-            if ($model->validate() && $fileInstance->saveAs($fullPath) && $model->save()) {
+            if ($fileModel->validate() && $fileInstance->saveAs($fullPath) && $fileModel->save()) {
                 if ($this->createThumbnail) {
-                    $model->createThumbnail($this->thumbnailExtension);
+                    $fileModel->createThumbnail($this->thumbnailExtension);
                 }
+
+                $targetAttribute                     = $this->targetModel;
+                $this->targetModel->$targetAttribute = $fileModel->id;
+                $this->targetModel->save();
             }
         }
     }
