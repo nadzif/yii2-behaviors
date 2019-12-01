@@ -165,8 +165,9 @@ class UploadBehavior extends Behavior
                     $relatedModel = $this->targetModel;
 
                     if ($relatedModel->$targetAttribute) {
-                        /** @var ActiveRecord $existingRecord */
-                        $existingFileModel = (new $this->fileClass)::findOne(['id' => $relatedModel->$targetAttribute]);
+                        /** @var File $fileIdentifier */
+                        $fileIdentifier = new $this->fileClass;
+                        $existingFileModel = $fileIdentifier::findOne(['id' => $relatedModel->$targetAttribute]);
                         $existingFileModel->delete();
                     }
 
