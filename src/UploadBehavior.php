@@ -109,7 +109,7 @@ class UploadBehavior extends Behavior
                 $dirPath .= $uploadPath;
             }
 
-            is_dir($dirPath) ?: FileHelper::makeDirectory($dirPath, $this->directoryMode, true);
+            FileHelper::makeDirectory($dirPath, $this->directoryMode, true);
 
             if ($fileInstance->size > $this->maxSize) {
                 $formModel->addError($this->fileAttribute, \Yii::t('app', 'File size is too big. Max size: {size}', [
@@ -160,9 +160,18 @@ class UploadBehavior extends Behavior
                         $fileModel->createThumbnail($this->thumbnailExtension);
                     }
 
-                    $targetAttribute                     = $this->targetAttribute;
-                    $this->targetModel->$targetAttribute = $fileModel->id;
-                    $this->targetModel->save();
+                    $targetAttribute = $this->targetAttribute;
+                    /** @var ActiveRecord $relatedModel */
+                    $relatedModel = $this->targetModel;
+
+                    if ($relatedModel->$targetAttribute) {
+                        /** @var ActiveRecord $existingRecord */
+                        $existingFileModel = (new $this->fileClass)::findOne(['id' => $relatedModel->$targetAttribute]);
+                        $existingFileModel->delete();
+                    }
+
+                    $relatedModel->$targetAttribute = $fileModel->id;
+                    $relatedModel->save();
                 };
             }
         }

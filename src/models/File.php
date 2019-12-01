@@ -141,20 +141,11 @@ class File extends ActiveRecord
     public function delete()
     {
         if ($this->deleteRelatedFiles) {
-            $this->removeFile();
             $this->removeThumbnail();
+            $this->removeFile();
         }
 
         return parent::delete();
-    }
-
-    protected function removeFile()
-    {
-        if (file_exists($this->location)) {
-            unlink($this->location);
-        }
-
-        return true;
     }
 
     protected function removeThumbnail()
@@ -175,6 +166,15 @@ class File extends ActiveRecord
         return true;
     }
 
+    protected function removeFile()
+    {
+        if (file_exists($this->location)) {
+            unlink($this->location);
+        }
+
+        return true;
+    }
+
     public function createThumbnail()
     {
         $thumbnailExtension = $this->defaultThumbnailExtension;
@@ -182,6 +182,8 @@ class File extends ActiveRecord
 
         $fileLocation      = $this->location;
         $thumbnailLocation = $this->directoryPath . $thumbnailFilename . '.' . $thumbnailExtension;
+
+        $thumbnailExist = $this->hasThumbnail;
 
         if ($this->type == self::TYPE_IMAGE) {
             $success = $this->createThumbnailImage($fileLocation, $thumbnailLocation, $this->thumbnailOptions);
@@ -196,10 +198,10 @@ class File extends ActiveRecord
         }
 
         if ($success) {
-            if ($this->hasThumbnail) {
+            if ($thumbnailExist) {
                 $this->removeThumbnail();
             }
-
+            $this->hasThumbnail       = true;
             $this->thumbnailName      = $thumbnailFilename;
             $this->thumbnailExtension = $thumbnailExtension;
             $this->thumbnailSize      = filesize($thumbnailLocation);
@@ -262,7 +264,6 @@ class File extends ActiveRecord
                 . " -f mjpeg -t 1 -r 1 -y -s " . $thumbnailSize . " \"" . $destination . "\" 2>&1";
 
             exec($cmd);
-
             return true;
         } catch (\Exception $e) {
             return false;
@@ -273,8 +274,8 @@ class File extends ActiveRecord
     {
         $directory = \Yii::getAlias($this->uploadAlias) . DIRECTORY_SEPARATOR;
         $directory .= $this->requireWeb ? 'web' . DIRECTORY_SEPARATOR : "";
-        $directory .= $this->uploadPath . DIRECTORY_SEPARATOR;
-        return $directory;
+        $directory .= $this->uploadPath;
+        return str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $directory);
     }
 
     protected function getThumbnailLocation()
