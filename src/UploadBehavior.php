@@ -13,10 +13,8 @@ use nadzif\behaviors\helpers\FileHelper;
 use nadzif\behaviors\models\File;
 use yii\base\Behavior;
 use yii\base\Model;
-use yii\behaviors\AttributeBehavior;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
-use yii\web\BadRequestHttpException;
 use yii\web\UploadedFile;
 
 /**
@@ -111,7 +109,7 @@ class UploadBehavior extends Behavior
                 $dirPath .= $uploadPath;
             }
 
-            is_dir($dirPath) ?: mkdir($dirPath, $this->directoryMode, true); // MAKE DIRECTORY IF NOT EXIST
+            is_dir($dirPath) ?: FileHelper::makeDirectory($dirPath, $this->directoryMode, true);
 
             if ($fileInstance->size > $this->maxSize) {
                 $formModel->addError($this->fileAttribute, \Yii::t('app', 'File size is too big. Max size: {size}', [

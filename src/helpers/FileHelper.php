@@ -33,4 +33,17 @@ class FileHelper
             return $text;
         }
     }
+
+    public static function makeDirectory($path, $mode, $recursive, $gitignore = true)
+    {
+        if(!is_dir($path)){
+            mkdir($path, $mode, $recursive);
+
+            if ($gitignore && !file_exists($path  . ".gitignore")) {
+                $ignoreFile = fopen($path  . ".gitignore", "w") or die();
+                fwrite($ignoreFile, "*\n!.gitignore");
+                fclose($ignoreFile);
+            }
+        }
+    }
 }
