@@ -130,12 +130,21 @@ class File extends ActiveRecord
 
     public function getThumbnailUrl()
     {
-        return $this->baseUrl . $this->thumbnailFileName;
+        $thumbUrl = $this->baseUrl;
+        if (strlen($this->uploadPath)) {
+            $thumbUrl .= '/' . $this->uploadPath;
+        }
+
+        return $thumbUrl . $this->thumbnailFileName;
     }
 
     public function getUrl()
     {
-        return $this->baseUrl . $this->fileName;
+        $url = $this->baseUrl;
+        if (strlen($this->uploadPath)) {
+            $url .= '/' . $this->uploadPath;
+        }
+        return $url . $this->fileName;
     }
 
     public function delete()
