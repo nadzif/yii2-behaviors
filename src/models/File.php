@@ -46,6 +46,7 @@ use yii\imagine\Image;
  * @property string  $location
  * @property string  $thumbnailUrl
  * @property string  $url
+ * @property string  $readableSize
  */
 class File extends ActiveRecord
 {
@@ -116,6 +117,20 @@ class File extends ActiveRecord
                 }
             ]
         ];
+    }
+
+    function getReadableSize($precision = 2)
+    {
+        $size = $this->size;
+
+        $units = array('B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+        $step  = 1024;
+        $i     = 0;
+        while (($size / $step) > 0.9) {
+            $size = $size / $step;
+            $i++;
+        }
+        return round($size, $precision) . $units[$i];
     }
 
     public function getFileName()
