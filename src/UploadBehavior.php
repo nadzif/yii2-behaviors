@@ -38,6 +38,7 @@ class UploadBehavior extends Behavior
 
     public $isBase64        = false;
     public $requireLogin    = true;
+    public $required        = true;
     public $maxSize         = 88388608;
     public $uploadAlias     = File::ALIAS_WEB;
     public $uploadPath      = 'uploads';
@@ -53,13 +54,16 @@ class UploadBehavior extends Behavior
     public $thumbnailExtension; //optional
     public $thumbnailOptions; //optional
 
+    private $_fileInstance;
+
     /**
      * @return array
      */
     public function events()
     {
         return [
-            $this->eventName => $this->isBase64 ? 'uploadBase64' : 'upload'
+            $this->eventName             => $this->isBase64 ? 'uploadBase64' : 'upload',
+            Model::EVENT_BEFORE_VALIDATE => $this->isBase64 ? null : 'validateUpload'
         ];
     }
 
@@ -68,11 +72,11 @@ class UploadBehavior extends Behavior
      */
     public function upload()
     {
-        $this->validateEvent();
 
         /** @var Model $formModel */
-        $formModel    = $this->owner;
-        $fileInstance = UploadedFile::getInstance($formModel, $this->fileAttribute);
+        $formModel = $this->owner;
+
+        $fileInstance = $this->_fileInstance;
 
         if ($fileInstance) {
             $aliasDirectory = \Yii::getAlias($this->uploadAlias);
@@ -166,7 +170,7 @@ class UploadBehavior extends Behavior
 
                     if ($relatedModel->$targetAttribute) {
                         /** @var File $fileIdentifier */
-                        $fileIdentifier = new $this->fileClass;
+                        $fileIdentifier    = new $this->fileClass;
                         $existingFileModel = $fileIdentifier::findOne(['id' => $relatedModel->$targetAttribute]);
                         $existingFileModel->delete();
                     }
@@ -179,7 +183,7 @@ class UploadBehavior extends Behavior
 
     }
 
-    private function validateEvent()
+    public function validateUpload()
     {
         /** @var Model $formModel */
         $formModel = $this->owner;
@@ -188,6 +192,11 @@ class UploadBehavior extends Behavior
             $formModel->addError($this->fileAttribute, \Yii::t('app', 'Upload file require login'));
         }
 
+        $this->_fileInstance = UploadedFile::getInstance($formModel, $this->fileAttribute);
+
+        if ($this->required && !$this->_fileInstance) {
+            $formModel->addError($this->fileAttribute, \Yii::t('app', 'File cannot be blank'));
+        }
     }
 
 }
