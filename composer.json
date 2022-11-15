@@ -30,5 +30,10 @@
     "psr-4": {
       "nadzif\\behaviors\\": "src/"
     }
+  },
+  "config": {
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true
+    }
   }
 }

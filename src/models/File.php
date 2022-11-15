@@ -47,6 +47,7 @@ use yii\imagine\Image;
  * @property string  $thumbnailUrl
  * @property string  $url
  * @property string  $readableSize
+ * @property string  $base64
  */
 class File extends ActiveRecord
 {
@@ -310,5 +311,17 @@ class File extends ActiveRecord
     protected function getLocation()
     {
         return $this->directoryPath . $this->fileName;
+    }
+
+    public function getBase64()
+    {
+        try {
+            $path = $this->location;
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $data = file_get_contents($path);
+            return 'data:image/' . $type . ';base64,' . base64_encode($data);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }
